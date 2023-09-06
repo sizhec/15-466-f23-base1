@@ -32,75 +32,92 @@ PlayMode::PlayMode() {
 	// 2. glm::uvec2 *size w
 	// 3. vector< glm::u8vec4 > *data
 	// 4. origin where is defined as either LowerLeftOrigin or  UpperLeftOrigin
-	load_png(data_path("player.png"), &player_size, &player_data, LowerLeftOrigin);
+	load_png(data_path("ball.png"), &player_size, &player_data, LowerLeftOrigin);
+
+
+
+	glm::uvec2 poke1_size;
+	std::vector<glm::u8vec4> poke1_data;
+	load_png(data_path("poke1.png"), &poke1_size, &poke1_data, LowerLeftOrigin);
 	
+	auto load_from_png_data = [&](size_t tile_index, size_t palette_index, std::vector<glm::u8vec4> data){
 
-	assert(player_size == glm::uvec2(8,8));
+		ppu.tile_table[tile_index].bit0 = {
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		};
 
-	size_t colorSeen = 0;
+		ppu.tile_table[tile_index].bit1 = {
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		};
 
-	ppu.tile_table[1].bit0 = {
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-	};
+		//ppu.palette_table[palette_index] ={};
 
-	ppu.tile_table[1].bit1 = {
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
-	};
+		size_t colorSeen = 0;
 
-
-	// a naive loading that assume png are in 8*8 with less than 4 colours including transparent
-	// Assume tile table are init with all 0 vector (turn out to be bad assumption please zero out first)
-	for(size_t i =0; i < 8; i++){
-		for (size_t j = 0; j < 8; j++){
-			//getting data
-			glm::u8vec4 curColor = player_data[i*8 + j];
-			// if already in palette_table1
-			if (std::find(std::begin(ppu.palette_table[1]), std::end(ppu.palette_table[1]), curColor)!= std::end(ppu.palette_table[1])){
-				size_t pos = std::find(std::begin(ppu.palette_table[1]), std::end(ppu.palette_table[1]), curColor) - std::begin(ppu.palette_table[1]);
-				if (pos == 0){
-						continue;
-				}else if(pos == 1){
-						ppu.tile_table[1].bit1[i] |= (1 << j);
-				}else if(pos == 2){
-						ppu.tile_table[1].bit0[i] |= (1 << j);
-				}else{
-						ppu.tile_table[1].bit1[i] |= (1 << j);
-						ppu.tile_table[1].bit0[i] |= (1 << j);
-				}
-			// if not 
-			}else{
-				colorSeen++;
-				if (colorSeen <= 4){
-					ppu.palette_table[1][colorSeen-1] = curColor;
-					if (colorSeen == 1){
-						continue;
-					}else if(colorSeen == 2){
-						ppu.tile_table[1].bit1[i] |= (1 << j);
-					}else if(colorSeen == 3){
-						ppu.tile_table[1].bit0[i] |= (1 << j);
+		// a naive loading that assume png are in 8*8 with less than 4 colours including transparent
+	    // Assume tile table are init with all 0 vector (turn out to be bad assumption please zero out first)
+		for(size_t i =0; i < 8; i++){
+			for (size_t j = 0; j < 8; j++){
+				//getting data
+				glm::u8vec4 curColor = data[i*8 + j];
+				// if already in palette_table1
+				if (std::find(std::begin(ppu.palette_table[palette_index]), std::end(ppu.palette_table[palette_index]), curColor)!= std::end(ppu.palette_table[palette_index])){
+					size_t pos = std::find(std::begin(ppu.palette_table[palette_index]), std::end(ppu.palette_table[palette_index]), curColor) - std::begin(ppu.palette_table[palette_index]);
+					if (pos == 0){
+							continue;
+					}else if(pos == 1){
+							ppu.tile_table[tile_index].bit1[i] |= (1 << j);
+					}else if(pos == 2){
+							ppu.tile_table[tile_index].bit0[i] |= (1 << j);
 					}else{
-						ppu.tile_table[1].bit1[i] |= (1 << j);
-						ppu.tile_table[1].bit0[i] |= (1 << j);
+							ppu.tile_table[tile_index].bit1[i] |= (1 << j);
+							ppu.tile_table[tile_index].bit0[i] |= (1 << j);
 					}
+				// if not 
+				}else{
+					colorSeen++;
+					if (colorSeen <= 4){
+						ppu.palette_table[palette_index][colorSeen-1] = curColor;
+						if (colorSeen == 1){
+							continue;
+						}else if(colorSeen == 2){
+							ppu.tile_table[tile_index].bit1[i] |= (1 << j);
+						}else if(colorSeen == 3){
+							ppu.tile_table[tile_index].bit0[i] |= (1 << j);
+						}else{
+							ppu.tile_table[tile_index].bit1[i] |= (1 << j);
+							ppu.tile_table[tile_index].bit0[i] |= (1 << j);
+						}
+					}
+		
 				}
-	
 			}
 		}
-	}
+
+	};
+
+	load_from_png_data(1,1, player_data);
+
+	load_from_png_data(2,2,poke1_data);
+	
+
+	
+
+
 
 	
 
@@ -192,6 +209,12 @@ void PlayMode::update(float elapsed) {
 	//background_fade += elapsed / 10.0f;
 	//background_fade -= std::floor(background_fade);
 
+
+	//credit to https://stackoverflow.com/questions/5743678/generate-random-number-between-0-and-10
+	std::random_device rdev;
+	std::mt19937 gen(rdev());
+	std::uniform_int_distribution<> distrib(0, 230);
+
 	constexpr float PlayerSpeed = 60.0f;
 	if (left.pressed) player_at.x -= PlayerSpeed * elapsed;
 	if (right.pressed) player_at.x += PlayerSpeed * elapsed;
@@ -203,6 +226,14 @@ void PlayMode::update(float elapsed) {
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+
+
+	//implementaion of naive collision
+
+	if ((std::abs(player_at.x - poke_at.x) <= 3) && (std::abs(player_at.y - poke_at.y) <= 3)){
+		poke_at.x = (float)distrib(gen);
+		poke_at.y = (float)distrib(gen);
+	}
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
@@ -231,12 +262,23 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	ppu.background_position.x = int32_t(-0.5f * player_at.x);
 	ppu.background_position.y = int32_t(-0.5f * player_at.y);
 
-	//player sprite:
-	ppu.sprites[0].x = int8_t(player_at.x);
-	ppu.sprites[0].y = int8_t(player_at.y);
-	ppu.sprites[0].index = 1;
-	ppu.sprites[0].attributes = 1;
+	
 
+
+	//player sprite:
+	ppu.sprites[32].x = int8_t(player_at.x);
+	ppu.sprites[32].y = int8_t(player_at.y);
+	ppu.sprites[32].index = 1;
+	ppu.sprites[32].attributes = 1;
+
+	ppu.sprites[1].x = int8_t(poke_at.x);
+	ppu.sprites[1].y = int8_t(poke_at.y);
+	ppu.sprites[1].index = 2;
+	ppu.sprites[1].attributes = 2;
+
+
+
+	
 	
 
 	//--- actually draw ---

@@ -29,6 +29,8 @@ struct PlayMode : Mode {
 	//player position:
 	glm::vec2 player_at = glm::vec2(0.0f);
 
+	glm::vec2 poke_at = glm::vec2(0.0f);
+
 	//----- drawing handled by PPU466 -----
 
 	PPU466 ppu;
