@@ -32,7 +32,7 @@ PlayMode::PlayMode() {
 	// 2. glm::uvec2 *size w
 	// 3. vector< glm::u8vec4 > *data
 	// 4. origin where is defined as either LowerLeftOrigin or  UpperLeftOrigin
-	load_png(data_path("player.png"), &player_size, &player_data, LowerLeftOrigin);
+	load_png(data_path("ball.png"), &player_size, &player_data, LowerLeftOrigin);
 	
 
 	assert(player_size == glm::uvec2(8,8));
@@ -60,6 +60,9 @@ PlayMode::PlayMode() {
 		0b00000000,
 		0b00000000,
 	};
+	
+	
+	
 
 
 	// a naive loading that assume png are in 8*8 with less than 4 colours including transparent
@@ -83,21 +86,20 @@ PlayMode::PlayMode() {
 				}
 			// if not 
 			}else{
-				colorSeen++;
-				if (colorSeen <= 4){
-					ppu.palette_table[1][colorSeen-1] = curColor;
-					if (colorSeen == 1){
+				if (colorSeen < 4){
+					ppu.palette_table[1][colorSeen] = curColor;
+					if (colorSeen == 0){
 						continue;
-					}else if(colorSeen == 2){
+					}else if(colorSeen == 1){
 						ppu.tile_table[1].bit1[i] |= (1 << j);
-					}else if(colorSeen == 3){
+					}else if(colorSeen == 2){
 						ppu.tile_table[1].bit0[i] |= (1 << j);
 					}else{
 						ppu.tile_table[1].bit1[i] |= (1 << j);
 						ppu.tile_table[1].bit0[i] |= (1 << j);
 					}
 				}
-	
+				colorSeen++;
 			}
 		}
 	}
@@ -140,6 +142,9 @@ PlayMode::PlayMode() {
 			ppu.background[i+width * j] = white_background;
 		}
 	}
+
+
+	
 
 }
 
@@ -236,6 +241,11 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	ppu.sprites[0].y = int8_t(player_at.y);
 	ppu.sprites[0].index = 1;
 	ppu.sprites[0].attributes = 1;
+
+	ppu.sprites[1].x = int8_t(player_at.x);
+	ppu.sprites[1].y = int8_t(player_at.y);
+	ppu.sprites[1].index = 1;
+	ppu.sprites[1].attributes = 1;
 
 	
 
