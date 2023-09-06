@@ -25,8 +25,6 @@ PlayMode::PlayMode() {
 
 	//data_path
 
-	{
-
 	glm::uvec2 player_size;
 	std::vector<glm::u8vec4> player_data;
 	//According to load png it takes in
@@ -34,33 +32,77 @@ PlayMode::PlayMode() {
 	// 2. glm::uvec2 *size w
 	// 3. vector< glm::u8vec4 > *data
 	// 4. origin where is defined as either LowerLeftOrigin or  UpperLeftOrigin
-	load_png(data_path("happyface.png"), &player_size, &player_data, LowerLeftOrigin);
+	load_png(data_path("player.png"), &player_size, &player_data, LowerLeftOrigin);
+	
+
+	assert(player_size == glm::uvec2(8,8));
+
+	size_t colorSeen = 0;
+
+	ppu.tile_table[1].bit0 = {
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+	};
+
+	ppu.tile_table[1].bit1 = {
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+	};
+
+
+	// a naive loading that assume png are in 8*8 with less than 4 colours including transparent
+	// Assume tile table are init with all 0 vector (turn out to be bad assumption please zero out first)
+	for(size_t i =0; i < 8; i++){
+		for (size_t j = 0; j < 8; j++){
+			//getting data
+			glm::u8vec4 curColor = player_data[i*8 + j];
+			// if already in palette_table1
+			if (std::find(std::begin(ppu.palette_table[1]), std::end(ppu.palette_table[1]), curColor)!= std::end(ppu.palette_table[1])){
+				size_t pos = std::find(std::begin(ppu.palette_table[1]), std::end(ppu.palette_table[1]), curColor) - std::begin(ppu.palette_table[1]);
+				if (pos == 0){
+						continue;
+				}else if(pos == 1){
+						ppu.tile_table[1].bit1[i] |= (1 << j);
+				}else if(pos == 2){
+						ppu.tile_table[1].bit0[i] |= (1 << j);
+				}else{
+						ppu.tile_table[1].bit1[i] |= (1 << j);
+						ppu.tile_table[1].bit0[i] |= (1 << j);
+				}
+			// if not 
+			}else{
+				colorSeen++;
+				if (colorSeen <= 4){
+					ppu.palette_table[1][colorSeen-1] = curColor;
+					if (colorSeen == 1){
+						continue;
+					}else if(colorSeen == 2){
+						ppu.tile_table[1].bit1[i] |= (1 << j);
+					}else if(colorSeen == 3){
+						ppu.tile_table[1].bit0[i] |= (1 << j);
+					}else{
+						ppu.tile_table[1].bit1[i] |= (1 << j);
+						ppu.tile_table[1].bit0[i] |= (1 << j);
+					}
+				}
+	
+			}
+		}
 	}
 
-
-
-	//use sprite 32 as a "player":
-	ppu.tile_table[32].bit0 = {
-		0b01111110,
-		0b11111111,
-		0b11111111,
-		0b11111111,
-		0b11111111,
-		0b11111111,
-		0b11111111,
-		0b01111110,
-	};
-	ppu.tile_table[32].bit1 = {
-		0b00000000,
-		0b00000000,
-		0b00011000,
-		0b00100100,
-		0b00000000,
-		0b00100100,
-		0b00000000,
-		0b00000000,
-	};
-
+	
 
 	//first palette table, the first color is white
 	//the rest doesnt matter for now
@@ -150,7 +192,7 @@ void PlayMode::update(float elapsed) {
 	//background_fade += elapsed / 10.0f;
 	//background_fade -= std::floor(background_fade);
 
-	constexpr float PlayerSpeed = 30.0f;
+	constexpr float PlayerSpeed = 60.0f;
 	if (left.pressed) player_at.x -= PlayerSpeed * elapsed;
 	if (right.pressed) player_at.x += PlayerSpeed * elapsed;
 	if (down.pressed) player_at.y -= PlayerSpeed * elapsed;
@@ -192,18 +234,10 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	//player sprite:
 	ppu.sprites[0].x = int8_t(player_at.x);
 	ppu.sprites[0].y = int8_t(player_at.y);
-	ppu.sprites[0].index = 32;
-	ppu.sprites[0].attributes = 7;
+	ppu.sprites[0].index = 1;
+	ppu.sprites[0].attributes = 1;
 
-	//some other misc sprites:
-	// for (uint32_t i = 1; i < 63; ++i) {
-	// 	float amt = (i + 2.0f * background_fade) / 62.0f;
-	// 	ppu.sprites[i].x = int8_t(0.5f * PPU466::ScreenWidth + std::cos( 2.0f * M_PI * amt * 5.0f + 0.01f * player_at.x) * 0.4f * PPU466::ScreenWidth);
-	// 	ppu.sprites[i].y = int8_t(0.5f * PPU466::ScreenHeight + std::sin( 2.0f * M_PI * amt * 3.0f + 0.01f * player_at.y) * 0.4f * PPU466::ScreenWidth);
-	// 	ppu.sprites[i].index = 32;
-	// 	ppu.sprites[i].attributes = 6;
-	// 	if (i % 2) ppu.sprites[i].attributes |= 0x80; //'behind' bit
-	// }
+	
 
 	//--- actually draw ---
 	ppu.draw(drawable_size);
