@@ -31,6 +31,11 @@ struct PlayMode : Mode {
 
 	glm::vec2 poke_at = glm::vec2(0.0f);
 
+	size_t score = 0;
+
+	glm::vec2 score1_at = glm::vec2(240.0f, 232.0f);
+	glm::vec2 score2_at = glm::vec2(248.0f, 232.0f);
+
 	//----- drawing handled by PPU466 -----
 
 	PPU466 ppu;

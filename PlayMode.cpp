@@ -37,8 +37,48 @@ PlayMode::PlayMode() {
 
 
 	glm::uvec2 poke1_size;
-	std::vector<glm::u8vec4> poke1_data;
+	std::vector<glm::u8vec4> poke1_data;	
 	load_png(data_path("poke1.png"), &poke1_size, &poke1_data, LowerLeftOrigin);
+
+	glm::uvec2 zero_size;
+	std::vector<glm::u8vec4> zero_data;
+	load_png(data_path("zero.png"), &zero_size, &zero_data, LowerLeftOrigin);
+
+	glm::uvec2 one_size;
+	std::vector<glm::u8vec4> one_data;
+	load_png(data_path("one.png"), &one_size, &one_data, LowerLeftOrigin);
+
+	glm::uvec2 two_size;
+	std::vector<glm::u8vec4> two_data;
+	load_png(data_path("two.png"), &two_size, &two_data, LowerLeftOrigin);
+
+	glm::uvec2 three_size;
+	std::vector<glm::u8vec4> three_data;
+	load_png(data_path("three.png"), &three_size, &three_data, LowerLeftOrigin);
+
+	glm::uvec2 four_size;
+	std::vector<glm::u8vec4> four_data;
+	load_png(data_path("four.png"), &four_size, &four_data, LowerLeftOrigin);
+	
+	glm::uvec2 five_size;
+	std::vector<glm::u8vec4> five_data;
+	load_png(data_path("five.png"), &five_size, &five_data, LowerLeftOrigin);
+	
+	glm::uvec2 six_size;
+	std::vector<glm::u8vec4> six_data;
+	load_png(data_path("six.png"), &six_size, &six_data, LowerLeftOrigin);
+
+	glm::uvec2 seven_size;
+	std::vector<glm::u8vec4> seven_data;
+	load_png(data_path("seven.png"), &seven_size, &seven_data, LowerLeftOrigin);
+
+	glm::uvec2 eight_size;
+	std::vector<glm::u8vec4> eight_data;
+	load_png(data_path("eight.png"), &eight_size, &eight_data, LowerLeftOrigin);
+
+	glm::uvec2 nine_size;
+	std::vector<glm::u8vec4> nine_data;
+	load_png(data_path("nine.png"), &nine_size, &nine_data, LowerLeftOrigin);
 	
 	auto load_from_png_data = [&](size_t tile_index, size_t palette_index, std::vector<glm::u8vec4> data){
 
@@ -83,7 +123,7 @@ PlayMode::PlayMode() {
 							ppu.tile_table[tile_index].bit1[i] |= (1 << j);
 					}else if(pos == 2){
 							ppu.tile_table[tile_index].bit0[i] |= (1 << j);
-					}else{
+					}else if(pos == 3){
 							ppu.tile_table[tile_index].bit1[i] |= (1 << j);
 							ppu.tile_table[tile_index].bit0[i] |= (1 << j);
 					}
@@ -113,6 +153,26 @@ PlayMode::PlayMode() {
 	load_from_png_data(1,1, player_data);
 
 	load_from_png_data(2,2,poke1_data);
+
+	load_from_png_data(3,3,zero_data);
+
+	load_from_png_data(4,3,one_data);
+
+	load_from_png_data(5,3,two_data);
+
+	load_from_png_data(6,3,three_data);
+
+	load_from_png_data(7,3,four_data);
+
+	load_from_png_data(8,3,five_data);
+
+	load_from_png_data(9,3,six_data);
+
+	load_from_png_data(10,3,seven_data);
+
+	load_from_png_data(11,3,eight_data);
+
+	load_from_png_data(12,3,nine_data);
 	
 
 	
@@ -202,6 +262,8 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	return false;
 }
 
+
+
 void PlayMode::update(float elapsed) {
 
 	//slowly rotates through [0,1):
@@ -233,6 +295,7 @@ void PlayMode::update(float elapsed) {
 	if ((std::abs(player_at.x - poke_at.x) <= 3) && (std::abs(player_at.y - poke_at.y) <= 3)){
 		poke_at.x = (float)distrib(gen);
 		poke_at.y = (float)distrib(gen);
+		score++;
 	}
 }
 
@@ -246,6 +309,8 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	// 	std::min(255,std::max(0,int32_t(255 * 0.5f * (0.5f + std::sin( 2.0f * M_PI * (background_fade + 2.0f / 3.0f) ) ) ))),
 	// 	0xff	
 	// );
+
+	
 
 	
 
@@ -275,6 +340,18 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	ppu.sprites[1].y = int8_t(poke_at.y);
 	ppu.sprites[1].index = 2;
 	ppu.sprites[1].attributes = 2;
+
+
+	ppu.sprites[60].x = int8_t(score1_at.x);
+	ppu.sprites[60].y = int8_t(score1_at.y);
+	ppu.sprites[60].index = uint8_t((score/10) + 3);
+	ppu.sprites[60].attributes = 3;
+
+	ppu.sprites[61].x = int8_t(score2_at.x);
+	ppu.sprites[61].y = int8_t(score2_at.y);
+	ppu.sprites[61].index = int8_t((score%10) + 3);
+	ppu.sprites[61].attributes = 3;
+
 
 
 
