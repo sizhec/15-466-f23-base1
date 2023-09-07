@@ -307,6 +307,9 @@ void PlayMode::update(float elapsed) {
 		balldir = playerdir;
 	}
 
+	player_at.x = std::clamp(player_at.x, 0.0f, 248.0f);
+	player_at.y = std::clamp(player_at.y, 0.0f, 232.0f);
+
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;

@@ -17,12 +17,14 @@ fill in corresponding tile table and palette table
 4. create sprites using these indexes
 
 
+
 How To Play:
 
 W, A, S, D for movement.
 
 Space to send out your Poke Balls!
 
+Note: You only have one poke ball and scoreboard display is not perfect... :(
 
 This game was built with [NEST](NEST.md).
 
