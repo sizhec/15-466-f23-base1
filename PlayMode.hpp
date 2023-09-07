@@ -21,7 +21,7 @@ struct PlayMode : Mode {
 	struct Button {
 		uint8_t downs = 0;
 		uint8_t pressed = 0;
-	} left, right, down, up;
+	} left, right, down, up, space;
 
 	//some weird background animation:
 	float background_fade = 0.0f;
@@ -30,6 +30,12 @@ struct PlayMode : Mode {
 	glm::vec2 player_at = glm::vec2(0.0f);
 
 	glm::vec2 poke_at = glm::vec2(0.0f);
+
+	//started offscreen
+	glm::vec2 ball_at = glm::vec2(260.0f, 250.0f);
+	size_t playerdir = 0;
+	size_t balldir = 0;
+	//bool drawBall = false;
 
 	size_t score = 0;
 

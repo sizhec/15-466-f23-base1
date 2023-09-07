@@ -32,7 +32,7 @@ PlayMode::PlayMode() {
 	// 2. glm::uvec2 *size w
 	// 3. vector< glm::u8vec4 > *data
 	// 4. origin where is defined as either LowerLeftOrigin or  UpperLeftOrigin
-	load_png(data_path("ball.png"), &player_size, &player_data, LowerLeftOrigin);
+	load_png(data_path("player.png"), &player_size, &player_data, LowerLeftOrigin);
 
 
 
@@ -79,6 +79,10 @@ PlayMode::PlayMode() {
 	glm::uvec2 nine_size;
 	std::vector<glm::u8vec4> nine_data;
 	load_png(data_path("nine.png"), &nine_size, &nine_data, LowerLeftOrigin);
+
+	glm::uvec2 ball_size;
+	std::vector<glm::u8vec4> ball_data;
+	load_png(data_path("ball.png"), &ball_size, &ball_data, LowerLeftOrigin);
 	
 	auto load_from_png_data = [&](size_t tile_index, size_t palette_index, std::vector<glm::u8vec4> data){
 
@@ -173,7 +177,8 @@ PlayMode::PlayMode() {
 	load_from_png_data(11,3,eight_data);
 
 	load_from_png_data(12,3,nine_data);
-	
+
+	load_from_png_data(13,4,ball_data);
 
 	
 
@@ -242,6 +247,10 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			down.downs += 1;
 			down.pressed = true;
 			return true;
+		} else if (evt.key.keysym.sym == SDLK_SPACE) {
+			space.downs += 1;
+			space.pressed = true;
+			return true;
 		}
 	} else if (evt.type == SDL_KEYUP) {
 		if (evt.key.keysym.sym == SDLK_LEFT) {
@@ -255,6 +264,9 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			return true;
 		} else if (evt.key.keysym.sym == SDLK_DOWN) {
 			down.pressed = false;
+			return true;
+		} else if (evt.key.keysym.sym == SDLK_SPACE) {
+			space.pressed = false;
 			return true;
 		}
 	}
@@ -278,25 +290,63 @@ void PlayMode::update(float elapsed) {
 	std::uniform_int_distribution<> distrib(0, 230);
 
 	constexpr float PlayerSpeed = 60.0f;
-	if (left.pressed) player_at.x -= PlayerSpeed * elapsed;
-	if (right.pressed) player_at.x += PlayerSpeed * elapsed;
-	if (down.pressed) player_at.y -= PlayerSpeed * elapsed;
-	if (up.pressed) player_at.y += PlayerSpeed * elapsed;
+	constexpr float BallSpeed = 100.0f;
+	if (left.pressed) {
+		player_at.x -= PlayerSpeed * elapsed;
+		playerdir = 0;
+	}
+	if (right.pressed){
+		player_at.x += PlayerSpeed * elapsed;
+		playerdir = 1;
+	}
+	if (down.pressed){
+		player_at.y -= PlayerSpeed * elapsed;
+		playerdir = 2;
+	}
+	if (up.pressed){
+		player_at.y += PlayerSpeed * elapsed;
+		playerdir = 3;
+	}if (space.pressed){
+		ball_at.x = player_at.x;
+		ball_at.y = player_at.y;
+		balldir = playerdir;
+	}
 
 	//reset button press counters:
 	left.downs = 0;
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+	space.downs = 0;
 
+
+	
+	//implementaion of naive update ball
+	if (ball_at.x < 257 && ball_at.x > -12 && ball_at.y > 0 && ball_at.y <241){
+		if (balldir == 0){
+			ball_at.x -= BallSpeed * elapsed;
+		}else if(balldir == 1){
+			ball_at.x += BallSpeed * elapsed;
+		}else if(balldir == 2){
+			ball_at.y -= BallSpeed * elapsed;
+		}else if(balldir == 3){
+			ball_at.y += BallSpeed * elapsed;
+		}
+		
+	}else{
+		ball_at = glm::vec2(260.0f, 250.0f);
+	}
 
 	//implementaion of naive collision
 
-	if ((std::abs(player_at.x - poke_at.x) <= 3) && (std::abs(player_at.y - poke_at.y) <= 3)){
+	if ((std::abs(ball_at.x - poke_at.x) <= 3) && (std::abs(ball_at.y - poke_at.y) <= 3)){
 		poke_at.x = (float)distrib(gen);
 		poke_at.y = (float)distrib(gen);
 		score++;
+		ball_at = glm::vec2(260.0f, 250.0f);
 	}
+
+
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
@@ -335,7 +385,13 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	ppu.sprites[32].y = int8_t(player_at.y);
 	ppu.sprites[32].index = 1;
 	ppu.sprites[32].attributes = 1;
+	
+	ppu.sprites[31].x = int8_t(ball_at.x);
+	ppu.sprites[31].y = int8_t(ball_at.y);
+	ppu.sprites[31].index = 13;
+	ppu.sprites[31].attributes = 4;
 
+	
 	ppu.sprites[1].x = int8_t(poke_at.x);
 	ppu.sprites[1].y = int8_t(poke_at.y);
 	ppu.sprites[1].index = 2;
