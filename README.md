@@ -10,8 +10,11 @@ Screen Shot:
 
 How Your Asset Pipeline Works:
 
-I created a function given tile table index and palette table index which scan through the png data array and fill in corresponding  
-tile table and palette table. Then create sprites using these indexes.
+1. created assets through pixel art and put them in the corresponding folder
+2. used load_png function to tranform png data to array of color vectors
+2. implemented a function where given tile table index and palette table index, the function scan through the color array and  
+fill in corresponding tile table and palette table
+4. create sprites using these indexes
 
 
 How To Play:
