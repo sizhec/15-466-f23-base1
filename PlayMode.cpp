@@ -278,11 +278,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 
-	//slowly rotates through [0,1):
-	// (will be used to set background color)
-	//background_fade += elapsed / 10.0f;
-	//background_fade -= std::floor(background_fade);
-
 
 	//credit to https://stackoverflow.com/questions/5743678/generate-random-number-between-0-and-10
 	std::random_device rdev;
@@ -352,32 +347,10 @@ void PlayMode::update(float elapsed) {
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	//--- set ppu state based on game state ---
 
-	//background color will be some hsv-like fade:
-	// ppu.background_color = glm::u8vec4(
-	// 	std::min(255,std::max(0,int32_t(255 * 0.5f * (0.5f + std::sin( 2.0f * M_PI * (background_fade + 0.0f / 3.0f) ) ) ))),
-	// 	std::min(255,std::max(0,int32_t(255 * 0.5f * (0.5f + std::sin( 2.0f * M_PI * (background_fade + 1.0f / 3.0f) ) ) ))),
-	// 	std::min(255,std::max(0,int32_t(255 * 0.5f * (0.5f + std::sin( 2.0f * M_PI * (background_fade + 2.0f / 3.0f) ) ) ))),
-	// 	0xff	
-	// );
-
-	
-
-	
-
-	//tilemap gets recomputed every frame as some weird plasma thing:
-	//NOTE: don't do this in your game! actually make a map or something :-)
-	// for (uint32_t y = 0; y < PPU466::BackgroundHeight; ++y) {
-	// 	for (uint32_t x = 0; x < PPU466::BackgroundWidth; ++x) {
-	// 		//TODO: make weird plasma thing
-	// 		ppu.background[x+PPU466::BackgroundWidth*y] = ((x+y)%16);
-	// 	}
-	// }
 
 	//background scroll:
 	ppu.background_position.x = int32_t(-0.5f * player_at.x);
 	ppu.background_position.y = int32_t(-0.5f * player_at.y);
-
-	
 
 
 	//player sprite:
@@ -408,10 +381,6 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 	ppu.sprites[61].index = int8_t((score%10) + 3);
 	ppu.sprites[61].attributes = 3;
 
-
-
-
-	
 	
 
 	//--- actually draw ---
