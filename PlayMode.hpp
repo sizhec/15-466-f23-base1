@@ -29,7 +29,7 @@ struct PlayMode : Mode {
 	//player position:
 	glm::vec2 player_at = glm::vec2(0.0f);
 
-	glm::vec2 poke_at = glm::vec2(0.0f);
+	glm::vec2 poke_at = glm::vec2(100.0f, 100.0f);
 
 	//started offscreen
 	glm::vec2 ball_at = glm::vec2(260.0f, 250.0f);

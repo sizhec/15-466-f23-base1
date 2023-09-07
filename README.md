@@ -1,22 +1,25 @@
-# (TODO: your game's title)
+# Gotta Catch em All
 
 Author: Sizhe Chen
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: A game where you control Ash to catch pokemons with your pokemon balls. You can checkout your score with scoreboard on your top right!
 
 Screen Shot:
 
-![Screen Shot](screenshot.png)
+![Screen Shot](screenshot1.png)
 
 How Your Asset Pipeline Works:
 
-(TODO: describe the steps in your asset pipeline, from source files to tiles/backgrounds/whatever you upload to the PPU466.)
+I created a function given tile table index and palette table index which scan through the png data array and fill in corresponding  
+tile table and palette table. Then create sprites using these indexes.
 
-(TODO: make sure the source files you drew are included. You can [link](your/file.png) to them to be a bit fancier.)
 
 How To Play:
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+W, A, S, D for movement.
+
+Space to send out your Poke Balls!
+
 
 This game was built with [NEST](NEST.md).
 
